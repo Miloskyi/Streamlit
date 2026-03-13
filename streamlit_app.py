@@ -70,14 +70,29 @@ st.markdown("""
 # --- CARGA DE DATOS ---
 @st.cache_data
 def load_data():
-    # Usando el archivo proporcionado por el usuario
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(script_dir, "bmw_global_sales_2018_2025.csv")
-    df = pd.read_csv(file_path)
+    file_name = "bmw_global_sales_2018_2025.csv"
     
-    # Crear una columna de fecha para series temporales
-    df['Date'] = pd.to_datetime(df[['Year', 'Month']].assign(Day=1))
-    return df
+    # Busca en diferentes rutas posibles (Local vs Streamlit Cloud)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    possible_paths = [
+        file_name,  # Ruta relativa simple
+        os.path.join(script_dir, file_name),  # Junto al script
+        os.path.join(os.getcwd(), file_name)  # Carpeta de ejecución
+    ]
+    
+    for path in possible_paths:
+        if os.path.exists(path):
+            df = pd.read_csv(path)
+            # Crear una columna de fecha para series temporales
+            df['Date'] = pd.to_datetime(df[['Year', 'Month']].assign(Day=1))
+            return df
+            
+    # Si no lo encuentra, forzar un error claro en la interfaz
+    raise FileNotFoundError(
+        f"No se encontró el archivo '{file_name}'. "
+        "Si estás en Streamlit Cloud, asegúrate de que el archivo CSV "
+        "se haya subido correctamente a tu repositorio de GitHub."
+    )
 
 try:
     df = load_data()
