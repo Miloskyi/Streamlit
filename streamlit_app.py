@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import pandas as pd
 import seaborn as sns
@@ -70,7 +71,8 @@ st.markdown("""
 @st.cache_data
 def load_data():
     # Usando el archivo proporcionado por el usuario
-    file_path = "bmw_global_sales_2018_2025.csv"
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(script_dir, "bmw_global_sales_2018_2025.csv")
     df = pd.read_csv(file_path)
     
     # Crear una columna de fecha para series temporales
